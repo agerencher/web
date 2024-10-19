@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anthony's Website</title>
+
+    <!-- Google Font for Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;  /* Apply Montserrat font */
+            background: linear-gradient(to bottom, white, rgb(208, 208, 208)) left, 
+                        linear-gradient(to bottom, rgb(78, 121, 157), rgb(110, 145, 177)) right;
+            background-size: 50% 100%;  /* Ensures each gradient takes up 50% of the width */
+            background-repeat: no-repeat; /* Prevents the gradient from repeating */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: transparent;
+            position: relative;
+            z-index: 2;  /* Ensure header and nav are above everything */
+        }
+
+        #logo {
+            font-size: 2.5em;
+            color: black;
+            font-family: 'Montserrat', sans-serif;  /* Apply Montserrat font */
+            font-weight: 700;  /* Bold */
+            position: absolute;
+            left: 20px; /* Keeps the logo on the left */
+        }
+
+        nav {
+            flex-grow: 1; /* Allows nav to grow and use space in the middle */
+            display: flex;
+            justify-content: center; /* Center the navigation links */
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: rgb(0, 0, 0); /* Default black font color */
+            font-size: 1.1em; /* Font size */
+            font-weight: bold; /* Bold font for the navigation links */
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: rgb(127, 127, 127); /* Darker shade on hover */
+        }
+
+        #content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+            position: relative;
+            text-align: center;
+        }
+
+        #left-side {
+            text-align: center;
+            position: absolute;
+            top: 50%; /* Pushes text lower to avoid overlap */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1; /* Keep the left-side behind the nav */
+        }
+
+        #left-side h1,
+        #left-side p {
+            margin: 0;
+            transition: color 0.3s ease-in-out;
+        }
+
+        #left-side h1 {
+            font-size: 6em;
+            letter-spacing: 0.1em;
+            color: transparent;
+            background: linear-gradient(90deg, rgb(78, 121, 157), rgb(110, 145, 177) 50%, white 50%);
+            background-clip: text;
+            -webkit-background-clip: text;
+        }
+
+        #left-side p {
+            font-size: 1.4em;
+            color: transparent;
+            background: linear-gradient(90deg, darkgrey 50%, black 50%); /* Gradient from light grey to black */
+            background-clip: text;
+            -webkit-background-clip: text;
+            font-weight: 600;
+        }
+
+        #right-side img {
+            width: 100%;
+            max-width: 600px;  /* Center the image and set a maximum width */
+            margin: -400px auto 0;  /* Moves the image up by 80px to prevent overlap */
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <!-- ChatGPT logo on the left -->
+        <div id="logo">ChatGPT</div>
+
+        <!-- Centered Navigation Links -->
+        <nav>
+            <a href="#game">Meet Game</a>
+            <a href="#">Meet IDK</a>
+            <a href="https://github.com/agerencher" target="_blank">Meet Me</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div id="content">
+        <!-- Left Side (Text) -->
+        <div id="left-side">
+            <h1>ANTHONY</h1>
+            <p>The best CS student of all time</p>
+        </div>
+
+        <!-- Right Side (Image) -->
+        <div id="right-side">
+            <img src="images/hw-logo.png" alt="Harvard-Westlake Logo">
+        </div>
+    </div>
+
+</body>
+</html>
