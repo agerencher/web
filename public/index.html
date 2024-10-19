@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anthony's Website</title>
 
     <!-- Google Font for Montserrat -->
@@ -16,15 +16,15 @@
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;  /* Apply Montserrat font */
-            background: linear-gradient(to bottom, white, rgb(208, 208, 208)) left, 
-                        linear-gradient(to bottom, rgb(78, 121, 157), rgb(110, 145, 177)) right;
-            background-size: 50% 100%;  /* Ensures each gradient takes up 50% of the width */
-            background-repeat: no-repeat; /* Prevents the gradient from repeating */
+            font-family: 'Montserrat', sans-serif;
+            background-color: black;
+            color: white;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             height: 100vh;
+            position: relative;
+            overflow: hidden; /* Hide overflow for the particle effect */
         }
 
         header {
@@ -34,35 +34,36 @@
             padding: 20px;
             background-color: transparent;
             position: relative;
-            z-index: 2;  /* Ensure header and nav are above everything */
+            z-index: 3;  /* Ensure header is above the canvas */
         }
 
         #logo {
             font-size: 2.5em;
-            color: black;
-            font-family: 'Montserrat', sans-serif;  /* Apply Montserrat font */
-            font-weight: 700;  /* Bold */
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
             position: absolute;
-            left: 20px; /* Keeps the logo on the left */
+            left: 20px;
+            color: white;  /* Ensure the logo is white */
         }
 
         nav {
-            flex-grow: 1; /* Allows nav to grow and use space in the middle */
+            flex-grow: 1;
             display: flex;
-            justify-content: center; /* Center the navigation links */
+            justify-content: center;
             gap: 30px;
+            z-index: 0;  /* Ensure navigation is above the canvas */
         }
 
         nav a {
             text-decoration: none;
-            color: rgb(0, 0, 0); /* Default black font color */
-            font-size: 1.1em; /* Font size */
-            font-weight: bold; /* Bold font for the navigation links */
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
             transition: color 0.3s;
         }
 
         nav a:hover {
-            color: rgb(127, 127, 127); /* Darker shade on hover */
+            color: grey;
         }
 
         #content {
@@ -72,58 +73,53 @@
             height: 80vh;
             position: relative;
             text-align: center;
+            z-index: 0;  /* Keep text above particles */
         }
 
         #left-side {
             text-align: center;
             position: absolute;
-            top: 50%; /* Pushes text lower to avoid overlap */
+            top: 30%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 1; /* Keep the left-side behind the nav */
-        }
-
-        #left-side h1,
-        #left-side p {
-            margin: 0;
-            transition: color 0.3s ease-in-out;
+            z-index: 0;
         }
 
         #left-side h1 {
-            font-size: 6em;
+            font-size: 4em;
             letter-spacing: 0.1em;
-            color: transparent;
-            background: linear-gradient(90deg, rgb(78, 121, 157), rgb(110, 145, 177) 50%, white 50%);
-            background-clip: text;
-            -webkit-background-clip: text;
+            margin: 0;
         }
 
         #left-side p {
-            font-size: 1.4em;
-            color: transparent;
-            background: linear-gradient(90deg, darkgrey 50%, black 50%); /* Gradient from light grey to black */
-            background-clip: text;
-            -webkit-background-clip: text;
-            font-weight: 600;
+            font-size: 4em;
         }
 
-        #right-side img {
-            width: 100%;
-            max-width: 600px;  /* Center the image and set a maximum width */
-            margin: -400px auto 0;  /* Moves the image up by 80px to prevent overlap */
-            display: block;
+        /* Particle Effect Styles */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2; /* Ensure the canvas is behind all content */
         }
 
+        /* Arrow Icon in the Bottom Right */
+        #arrow {
+            position: absolute;
+            bottom: 5px;
+            right: 15px;
+            z-index: 3; /* Ensure the arrow is above the canvas */
+            font-size: 2.5em;
+            cursor: pointer;
+            transition: transform 0.5s;
+        }
     </style>
 </head>
 <body>
 
     <!-- Header -->
     <header>
-        <!-- ChatGPT logo on the left -->
-        <div id="logo">ChatGPT</div>
-
-        <!-- Centered Navigation Links -->
+        <div id="logo">Topics</div>
         <nav>
             <a href="#game">Meet Game</a>
             <a href="#">Meet IDK</a>
@@ -133,17 +129,250 @@
 
     <!-- Main Content -->
     <div id="content">
-        <!-- Left Side (Text) -->
         <div id="left-side">
             <h1>ANTHONY</h1>
-            <p>The best CS student of all time</p>
-        </div>
-
-        <!-- Right Side (Image) -->
-        <div id="right-side">
-            <img src="images/hw-logo.png" alt="Harvard-Westlake Logo">
+            <h1>GERENCHER</h1>
         </div>
     </div>
 
+    <!-- Particle Effect Canvas -->
+    <canvas id="canvas"></canvas>
+
+    <!-- Arrow Icon -->
+    <div id="arrow">↓</div>
+
+    <script>
+        window.onload = function () {
+            // Setup canvas
+            let canvas = document.getElementById("canvas");
+            let c = canvas.getContext("2d");
+            let w = (canvas.width = window.innerWidth);
+            let h = (canvas.height = window.innerHeight);
+
+            // Raindrop setup
+            let raindrops = [];
+            let numRaindrops = 200;
+            let rainDirection = 0; // 0 = down, 1 = left, 2 = up, 3 = right
+
+            class Raindrop {
+                constructor() {
+                    this.x = Math.random() * w;
+                    this.y = Math.random() * h;
+                    this.length = Math.random() * 20 + 10;
+                    this.speed = Math.random() * 2 + 1;
+                    this.color = Math.random() > 0.5 ? 'lightgrey' : 'grey';
+                }
+
+                update() {
+                    if (rainDirection === 0) { // Down
+                        this.y += this.speed;
+                        if (this.y > h) this.y = -this.length;
+                    } else if (rainDirection === 1) { // Left
+                        this.x -= this.speed;
+                        if (this.x < -this.length) this.x = w;
+                    } else if (rainDirection === 2) { // Up
+                        this.y -= this.speed;
+                        if (this.y < -this.length) this.y = h;
+                    } else if (rainDirection === 3) { // Right
+                        this.x += this.speed;
+                        if (this.x > w) this.x = -this.length;
+                    }
+                }
+
+                draw() {
+                    c.beginPath();
+                    if (rainDirection === 0 || rainDirection === 2) {
+                        c.moveTo(this.x, this.y);
+                        c.lineTo(this.x, this.y + this.length);
+                    } else {
+                        c.moveTo(this.x, this.y);
+                        c.lineTo(this.x + this.length, this.y);
+                    }
+                    c.strokeStyle = this.color;
+                    c.lineWidth = 1;
+                    c.stroke();
+                }
+            }
+
+            // Create raindrops
+            for (let i = 0; i < numRaindrops; i++) {
+                raindrops.push(new Raindrop());
+            }
+
+            // Cursor trail setup (your original code)
+            class segm {
+                constructor(x, y, l) {
+                    this.b = Math.random() * 1.9 + 0.1;
+                    this.x0 = x;
+                    this.y0 = y;
+                    this.a = Math.random() * 2 * Math.PI;
+                    this.x1 = this.x0 + l * Math.cos(this.a);
+                    this.y1 = this.y0 + l * Math.sin(this.a);
+                    this.l = l;
+                }
+                update(x, y) {
+                    this.x0 = x;
+                    this.y0 = y;
+                    this.a = Math.atan2(this.y1 - this.y0, this.x1 - this.x0);
+                    this.x1 = this.x0 + this.l * Math.cos(this.a);
+                    this.y1 = this.y0 + this.l * Math.sin(this.a);
+                }
+            }
+
+            class rope {
+                constructor(tx, ty, l, b, slq, typ) {
+                    this.res = typ == "l" ? l / 2 : l / slq;
+                    this.type = typ;
+                    this.l = l;
+                    this.segm = [];
+                    this.segm.push(new segm(tx, ty, this.l / this.res));
+                    for (let i = 1; i < this.res; i++) {
+                        this.segm.push(
+                            new segm(this.segm[i - 1].x1, this.segm[i - 1].y1, this.l / this.res)
+                        );
+                    }
+                    this.b = b;
+                }
+                update(t) {
+                    this.segm[0].update(t.x, t.y);
+                    for (let i = 1; i < this.res; i++) {
+                        this.segm[i].update(this.segm[i - 1].x1, this.segm[i - 1].y1);
+                    }
+                }
+                show() {
+                    if (this.type == "l") {
+                        c.beginPath();
+                        for (let i = 0; i < this.segm.length; i++) {
+                            c.lineTo(this.segm[i].x0, this.segm[i].y0);
+                        }
+                        c.lineTo(this.segm[this.segm.length - 1].x1, this.segm[this.segm.length - 1].y1);
+                        c.strokeStyle = "white";
+                        c.lineWidth = this.b;
+                        c.stroke();
+
+                        c.beginPath();
+                        c.arc(this.segm[0].x0, this.segm[0].y0, 1, 0, 2 * Math.PI);
+                        c.fillStyle = "white";
+                        c.fill();
+
+                        c.beginPath();
+                        c.arc(
+                            this.segm[this.segm.length - 1].x1,
+                            this.segm[this.segm.length - 1].y1,
+                            2,
+                            0,
+                            2 * Math.PI
+                        );
+                        c.fillStyle = "white";
+                        c.fill();
+                    } else {
+                        for (let i = 0; i < this.segm.length; i++) {
+                            c.beginPath();
+                            c.arc(this.segm[i].x0, this.segm[i].y0, this.segm[i].b, 0, 2 * Math.PI);
+                            c.fillStyle = "white";
+                            c.fill();
+                        }
+                        c.beginPath();
+                        c.arc(
+                            this.segm[this.segm.length - 1].x1,
+                            this.segm[this.segm.length - 1].y1,
+                            2, 0, 2 * Math.PI
+                        );
+                        c.fillStyle = "white";
+                        c.fill();
+                    }
+                }
+            }
+
+            // Canvas setup
+            let ropes = [];
+            let mouse = {},
+                rl = 50,
+                randl = [],
+                target = { x: w / 2, y: h / 2 },
+                t = 0,
+                da = [],
+                type = "l";
+
+            for (let i = 0; i < 100; i++) {
+                type = Math.random() > 0.25 ? "l" : "o";
+                ropes.push(
+                    new rope(
+                        w / 2,
+                        h / 2,
+                        (Math.random() * 1 + 0.5) * 500,
+                        Math.random() * 0.4 + 0.1,
+                        Math.random() * 15 + 5,
+                        type
+                    )
+                );
+                randl.push(Math.random() * 2 - 1);
+                da.push(0);
+            }
+
+            function draw() {
+                // Clear the canvas for the next frame
+                c.clearRect(0, 0, w, h);
+
+                // Draw and update raindrops
+                raindrops.forEach(raindrop => {
+                    raindrop.update();
+                    raindrop.draw();
+                });
+
+                // Cursor trail logic (your original effect)
+                if (mouse.x) {
+                    target.errx = mouse.x - target.x;
+                    target.erry = mouse.y - target.y;
+                } else {
+                    target.errx = w / 2 - target.x;
+                    target.erry = h / 2 - target.y;
+                }
+
+                target.x += target.errx / 10;
+                target.y += target.erry / 10;
+
+                for (let i = 0; i < ropes.length; i++) {
+                    da[i] += (randl[i] > 0 ? (1 - randl[i]) : (-1 - randl[i])) / 10;
+                    ropes[i].update({
+                        x: target.x + randl[i] * rl * Math.cos((i * 2 * Math.PI) / ropes.length + da[i]),
+                        y: target.y + randl[i] * rl * Math.sin((i * 2 * Math.PI) / ropes.length + da[i])
+                    });
+                    ropes[i].show();
+                }
+            }
+
+            canvas.addEventListener("mousemove", function (e) {
+                mouse.x = e.pageX;
+                mouse.y = e.pageY;
+            });
+
+            // Handle arrow click to change direction
+            const arrow = document.getElementById("arrow");
+            arrow.addEventListener("click", function () {
+                rainDirection = (rainDirection + 1) % 4; // Rotate clockwise (down -> left -> up -> right)
+                let arrowRotation = rainDirection * 180;
+                arrow.style.transform = `rotate(${arrowRotation}deg)`; // Rotate the arrow
+                if (rainDirection === 0) arrow.innerHTML = '↓';
+                if (rainDirection === 3) arrow.innerHTML = '←';
+                if (rainDirection === 2) arrow.innerHTML = '↑';
+                if (rainDirection === 1) arrow.innerHTML = '→';
+            });
+
+            // Animation frame
+            function loop() {
+                draw();
+                requestAnimationFrame(loop);
+            }
+
+            window.addEventListener("resize", function () {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+                loop();
+            });
+
+            loop();
+        };
+    </script>
 </body>
 </html>
