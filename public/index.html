@@ -103,15 +103,40 @@
             z-index: 2; /* Ensure the canvas is behind all content */
         }
 
-        /* Arrow Icon in the Bottom Right */
-        #arrow {
+        /* Arrow and Color Wheel in the Bottom Right */
+        #controls {
             position: absolute;
-            bottom: 5px;
-            right: 15px;
-            z-index: 3; /* Ensure the arrow is above the canvas */
+            bottom: 0px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            z-index: 3; /* Ensure the controls are above the canvas */
+        }
+
+        #color-icon {
+            width: 30px;
+            height: 31.5px;
+            cursor: pointer;
+            margin-right: 0px; /* Add spacing between color wheel and arrow */
+            margin-bottom: -7px;
+        }
+
+        #arrow {
             font-size: 2.5em;
             cursor: pointer;
             transition: transform 0.5s;
+            margin-left: 10px;
+        }
+
+        /* Hidden color input but make the label look like a color wheel */
+        #color-picker {
+            display: none;
+        }
+
+        #color-icon {
+            width: 30px;
+            height: 31.5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -138,8 +163,17 @@
     <!-- Particle Effect Canvas -->
     <canvas id="canvas"></canvas>
 
-    <!-- Arrow Icon -->
-    <div id="arrow">↓</div>
+    <!-- Controls (Arrow + Color Picker) -->
+    <div id="controls">
+        <!-- Color Picker Icon -->
+        <label for="color-picker">
+            <img src="images/color-wheel.png" id="color-icon" alt="Color Wheel">
+        </label>
+        <input type="color" id="color-picker" value="#d3d3d3">
+        
+        <!-- Arrow Icon -->
+        <div id="arrow">↓</div>
+    </div>
 
     <script>
         window.onload = function () {
@@ -152,7 +186,8 @@
             // Raindrop setup
             let raindrops = [];
             let numRaindrops = 200;
-            let rainDirection = 0; // 0 = down, 1 = left, 2 = up, 3 = right
+            let rainDirection = 0; // 0 = down, 1 = right, 2 = up, 3 = left
+            let rainColor = "#d3d3d3"; // Default rain color is light grey
 
             class Raindrop {
                 constructor() {
@@ -160,22 +195,21 @@
                     this.y = Math.random() * h;
                     this.length = Math.random() * 20 + 10;
                     this.speed = Math.random() * 2 + 1;
-                    this.color = Math.random() > 0.5 ? 'lightgrey' : 'grey';
                 }
 
                 update() {
                     if (rainDirection === 0) { // Down
                         this.y += this.speed;
                         if (this.y > h) this.y = -this.length;
-                    } else if (rainDirection === 1) { // Left
-                        this.x -= this.speed;
-                        if (this.x < -this.length) this.x = w;
+                    } else if (rainDirection === 1) { // Right
+                        this.x += this.speed;
+                        if (this.x > w) this.x = -this.length;
                     } else if (rainDirection === 2) { // Up
                         this.y -= this.speed;
                         if (this.y < -this.length) this.y = h;
-                    } else if (rainDirection === 3) { // Right
-                        this.x += this.speed;
-                        if (this.x > w) this.x = -this.length;
+                    } else if (rainDirection === 3) { // Left
+                        this.x -= this.speed;
+                        if (this.x < -this.length) this.x = w;
                     }
                 }
 
@@ -188,7 +222,7 @@
                         c.moveTo(this.x, this.y);
                         c.lineTo(this.x + this.length, this.y);
                     }
-                    c.strokeStyle = this.color;
+                    c.strokeStyle = rainColor;
                     c.lineWidth = 1;
                     c.stroke();
                 }
@@ -350,13 +384,19 @@
             // Handle arrow click to change direction
             const arrow = document.getElementById("arrow");
             arrow.addEventListener("click", function () {
-                rainDirection = (rainDirection + 1) % 4; // Rotate clockwise (down -> left -> up -> right)
+                rainDirection = (rainDirection + 3) % 4; // Rotate clockwise (down -> right -> up -> left)
                 let arrowRotation = rainDirection * 180;
                 arrow.style.transform = `rotate(${arrowRotation}deg)`; // Rotate the arrow
                 if (rainDirection === 0) arrow.innerHTML = '↓';
-                if (rainDirection === 3) arrow.innerHTML = '←';
+                if (rainDirection === 3) arrow.innerHTML = '→';
                 if (rainDirection === 2) arrow.innerHTML = '↑';
-                if (rainDirection === 1) arrow.innerHTML = '→';
+                if (rainDirection === 1) arrow.innerHTML = '←';
+            });
+
+            // Handle color picker change to update raindrop color
+            const colorPicker = document.getElementById("color-picker");
+            colorPicker.addEventListener("input", function () {
+                rainColor = this.value; // Set the rain color to the selected value
             });
 
             // Animation frame
