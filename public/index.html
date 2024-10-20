@@ -24,7 +24,7 @@
             justify-content: space-between;
             height: 100vh;
             position: relative;
-            overflow: hidden; /* Hide overflow for the particle effect */
+            overflow: hidden;
         }
 
         header {
@@ -34,7 +34,7 @@
             padding: 20px;
             background-color: transparent;
             position: relative;
-            z-index: 3;  /* Ensure header is above the canvas */
+            z-index: 3;
         }
 
         #logo {
@@ -43,7 +43,7 @@
             font-weight: 700;
             position: absolute;
             left: 20px;
-            color: white;  /* Ensure the logo is white */
+            color: white;
         }
 
         nav {
@@ -51,7 +51,8 @@
             display: flex;
             justify-content: center;
             gap: 30px;
-            z-index: 0;  /* Ensure navigation is above the canvas */
+            z-index: 0;
+            position: relative;
         }
 
         nav a {
@@ -60,10 +61,54 @@
             font-size: 1.1em;
             font-weight: bold;
             transition: color 0.3s;
+            cursor: pointer;
         }
 
         nav a:hover {
             color: grey;
+        }
+
+        /* Dropdown Menu Styles */
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        #dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 9px;
+            background-color: rgba(100, 98, 98, 0.33);
+            padding: 12px;
+            z-index: 10;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 8px; /* Rounded edges */
+            transform: scaleY(0); /* Start the dropdown scale at 0 (hidden) */
+            transform-origin: top;
+            transition: transform 0.3s ease-out; /* Apply the unravel effect */
+            max-height: 500px;
+        }
+
+        .dropdown-container.open #dropdown {
+            display: flex;
+            transform: scaleY(1); /* Expand the dropdown when opened */
+        }
+
+        #dropdown img {
+            width: 30px;
+            height: auto;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        /* Particle Effect Styles */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
         }
 
         #content {
@@ -73,7 +118,7 @@
             height: 80vh;
             position: relative;
             text-align: center;
-            z-index: 0;  /* Keep text above particles */
+            z-index: 0;
         }
 
         #left-side {
@@ -91,33 +136,19 @@
             margin: 0;
         }
 
-        #left-side p {
-            font-size: 4em;
-        }
-
-        /* Particle Effect Styles */
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 2; /* Ensure the canvas is behind all content */
-        }
-
-        /* Arrow and Color Wheel in the Bottom Right */
         #controls {
             position: absolute;
             bottom: 0px;
             right: 10px;
             display: flex;
             align-items: center;
-            z-index: 3; /* Ensure the controls are above the canvas */
+            z-index: 3;
         }
 
         #color-icon {
             width: 30px;
             height: 30px;
             cursor: pointer;
-            margin-right: 0px; /* Add spacing between color wheel and arrow */
             margin-bottom: -7px;
         }
 
@@ -128,15 +159,8 @@
             margin-left: 10px;
         }
 
-        /* Hidden color input but make the label look like a color wheel */
         #color-picker {
             display: none;
-        }
-
-        #color-icon {
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
         }
     </style>
 </head>
@@ -146,7 +170,14 @@
     <header>
         <div id="logo">Topics</div>
         <nav>
-            <a href="#game">GAME</a>
+            <div class="dropdown-container">
+                <a id="game-button">GAMES</a>
+                <div id="dropdown">
+                    <a href="roulette.html">
+                        <img src="images/roulette.png" alt="Roulette"> <!-- Clickable image button -->
+                    </a>
+                </div>
+            </div>
             <a href="#">IDK</a>
             <a href="https://github.com/agerencher" target="_blank">ME</a>
         </nav>
@@ -176,18 +207,24 @@
     </div>
 
     <script>
+        // Handle GAME button click to show/hide dropdown
+        const gameButton = document.getElementById('game-button');
+        const dropdownContainer = document.querySelector('.dropdown-container');
+
+        gameButton.addEventListener('click', () => {
+            dropdownContainer.classList.toggle('open');
+        });
+
         window.onload = function () {
-            // Setup canvas
             let canvas = document.getElementById("canvas");
             let c = canvas.getContext("2d");
             let w = (canvas.width = window.innerWidth);
             let h = (canvas.height = window.innerHeight);
 
-            // Raindrop setup
             let raindrops = [];
             let numRaindrops = 200;
-            let rainDirection = 0; // 0 = down, 1 = right, 2 = up, 3 = left
-            let rainColor = "#d3d3d3"; // Default rain color is light grey
+            let rainDirection = 0;
+            let rainColor = "#d3d3d3";
 
             class Raindrop {
                 constructor() {
@@ -198,16 +235,16 @@
                 }
 
                 update() {
-                    if (rainDirection === 0) { // Down
+                    if (rainDirection === 0) {
                         this.y += this.speed;
                         if (this.y > h) this.y = -this.length;
-                    } else if (rainDirection === 1) { // Right
+                    } else if (rainDirection === 1) {
                         this.x += this.speed;
                         if (this.x > w) this.x = -this.length;
-                    } else if (rainDirection === 2) { // Up
+                    } else if (rainDirection === 2) {
                         this.y -= this.speed;
                         if (this.y < -this.length) this.y = h;
-                    } else if (rainDirection === 3) { // Left
+                    } else if (rainDirection === 3) {
                         this.x -= this.speed;
                         if (this.x < -this.length) this.x = w;
                     }
@@ -228,12 +265,11 @@
                 }
             }
 
-            // Create raindrops
             for (let i = 0; i < numRaindrops; i++) {
                 raindrops.push(new Raindrop());
             }
 
-            // Cursor trail setup (your original code)
+            // Cursor trail setup
             class segm {
                 constructor(x, y, l) {
                     this.b = Math.random() * 1.9 + 0.1;
@@ -241,7 +277,7 @@
                     this.y0 = y;
                     this.a = Math.random() * 2 * Math.PI;
                     this.x1 = this.x0 + l * Math.cos(this.a);
-                    this.y1 = this.y0 + l * Math.sin(this.a);
+                    this.y1 = this.x0 + l * Math.sin(this.a);
                     this.l = l;
                 }
                 update(x, y) {
@@ -318,7 +354,7 @@
                 }
             }
 
-            // Canvas setup
+            // Cursor trail setup
             let ropes = [];
             let mouse = {},
                 rl = 50,
@@ -345,16 +381,13 @@
             }
 
             function draw() {
-                // Clear the canvas for the next frame
                 c.clearRect(0, 0, w, h);
 
-                // Draw and update raindrops
                 raindrops.forEach(raindrop => {
                     raindrop.update();
                     raindrop.draw();
                 });
 
-                // Cursor trail logic (your original effect)
                 if (mouse.x) {
                     target.errx = mouse.x - target.x;
                     target.erry = mouse.y - target.y;
@@ -381,25 +414,22 @@
                 mouse.y = e.pageY;
             });
 
-            // Handle arrow click to change direction
             const arrow = document.getElementById("arrow");
             arrow.addEventListener("click", function () {
-                rainDirection = (rainDirection + 3) % 4; // Rotate clockwise (down -> right -> up -> left)
+                rainDirection = (rainDirection + 3) % 4;
                 let arrowRotation = rainDirection * 180;
-                arrow.style.transform = `rotate(${arrowRotation}deg)`; // Rotate the arrow
+                arrow.style.transform = `rotate(${arrowRotation}deg)`;
                 if (rainDirection === 0) arrow.innerHTML = '↓';
                 if (rainDirection === 3) arrow.innerHTML = '→';
                 if (rainDirection === 2) arrow.innerHTML = '↑';
                 if (rainDirection === 1) arrow.innerHTML = '←';
             });
 
-            // Handle color picker change to update raindrop color
             const colorPicker = document.getElementById("color-picker");
             colorPicker.addEventListener("input", function () {
-                rainColor = this.value; // Set the rain color to the selected value
+                rainColor = this.value;
             });
 
-            // Animation frame
             function loop() {
                 draw();
                 requestAnimationFrame(loop);
