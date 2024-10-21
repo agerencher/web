@@ -113,7 +113,7 @@ function stay() {
 
     document.getElementById("dealer-sum").innerText = dealerSum;
     document.getElementById("your-sum").innerText = yourSum;
-    document.getElementById("results").innerText = message;
+    showResult(message); // Show result and trigger confetti if the user wins
 
     // Show the Play Again button after 1 second
     setTimeout(() => {
@@ -166,4 +166,29 @@ function setupPlayAgainButton() {
 
     // Hide it initially
     playAgainBtn.style.display = "none";
+}
+
+// Function to create and animate confetti
+function createConfetti() {
+    const confettiColors = ["#FF0A54", "#FF477E", "#FF5C8A", "#FF85A1", "#FFA3B5", "#FFC2D1"];
+    for (let i = 0; i < 100; i++) {
+        let confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        confetti.style.left = Math.random() * window.innerWidth + "px";
+        confetti.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        confetti.style.animationDuration = (Math.random() * 2 + 1) + "s";
+        document.body.appendChild(confetti);
+        
+        // Remove confetti after falling
+        setTimeout(() => {
+            confetti.remove();
+        }, 3000);
+    }
+}
+
+function showResult(message) {
+    document.getElementById("results").innerText = message;
+    if (message === "You Win!") {
+        createConfetti(); // Trigger confetti on win
+    }
 }

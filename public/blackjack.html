@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>BlackJack</title>
+        <title>Blackjack</title>
         <link rel="stylesheet" href="blackjack.css">
         <script src="blackjack.js"></script>
         <style>
@@ -88,6 +88,27 @@
                 border: none;
                 border-radius: 5px;
             }
+
+            /* Confetti Styles */
+            .confetti {
+                position: absolute;
+                width: 10px;
+                height: 10px;
+                background-color: red;
+                opacity: 0.7;
+                z-index: 4;
+                border-radius: 50%;
+                animation: confettiFall 3s linear infinite;
+            }
+
+            @keyframes confettiFall {
+                0% {
+                    transform: translateY(0) rotate(0deg);
+                }
+                100% {
+                    transform: translateY(100vh) rotate(720deg);
+                }
+            }
         </style>
     </head>
 
@@ -124,7 +145,7 @@
                 shuffleDeck();
                 startGame();
 
-                // Rain effect code from your homepage
+                // Rain effect code
                 let canvas = document.getElementById("canvas");
                 let c = canvas.getContext("2d");
                 let w = (canvas.width = window.innerWidth);
@@ -205,6 +226,31 @@
                     window.location.reload(); // Reload the page
                 });
             };
+
+            // Function to create and animate confetti
+            function createConfetti() {
+                const confettiColors = ["#FF0A54", "#FF477E", "#FF5C8A", "#FF85A1", "#FFA3B5", "#FFC2D1"];
+                for (let i = 0; i < 100; i++) {
+                    let confetti = document.createElement("div");
+                    confetti.classList.add("confetti");
+                    confetti.style.left = Math.random() * window.innerWidth + "px";
+                    confetti.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+                    confetti.style.animationDuration = (Math.random() * 2 + 1) + "s";
+                    document.body.appendChild(confetti);
+                    
+                    // Remove confetti after falling
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }
+            }
+
+            function showResult(message) {
+                document.getElementById("results").innerText = message;
+                if (message === "You Win!") {
+                    createConfetti(); // Trigger confetti on win
+                }
+            }
         </script>
     </body>
 </html>
