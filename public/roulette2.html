@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Roulette Table and Chips</title>
+    <title>3D Roulette Table with Full Textures</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
@@ -11,7 +11,7 @@
 </head>
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fflate@0.7.0/umd/index.js"></script> <!-- Updated fflate CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/fflate@0.7.0/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script>
@@ -43,25 +43,57 @@
             pointLight.position.set(50, 50, 50);
             scene.add(pointLight);
 
+            // Load textures using TextureLoader
+            const textureLoader = new THREE.TextureLoader();
+
+            // Textures for the table base (wooden part)
+            const tableColor = textureLoader.load('Table_Color.png');
+
+            // Textures for the table layout (green area)
+            const tableLayoutColor = textureLoader.load('roulete_table_Green_Table_color.png');
+
+            // Textures for the wheel
+            const wheelColor = textureLoader.load('Wheel_Color.png');
+
             // Load Roulette Table model
             const loader = new THREE.FBXLoader();
             loader.load('./roulete_table.fbx', function (object) {
-                console.log('Roulette table loaded:', object);
+                object.traverse(function (child) {
+                    if (child.isMesh) {
+                        console.log('Mesh name:', child.name); // Print the name of each mesh to the console
+
+                        // Apply textures based on mesh names
+                        
+                        // Assuming that the table base mesh contains 'Base' in its name
+                        if (child.name.toLowerCase().includes('base')) {
+                            child.material = new THREE.MeshStandardMaterial({
+                                map: tableColor,  // Wood texture for the base
+                            });
+                        }
+
+                        // Assuming that the table layout (green area) mesh contains 'Layout' or 'Top' in its name
+                        else if (child.name.toLowerCase().includes('layout') || child.name.toLowerCase().includes('top')) {
+                            child.material = new THREE.MeshStandardMaterial({
+                                map: tableLayoutColor,  // Green felt texture for the layout
+                            });
+                        }
+
+                        // Assuming the wheel mesh contains 'Wheel' in its name
+                        else if (child.name.toLowerCase().includes('wheel')) {
+                            child.material = new THREE.MeshStandardMaterial({
+                                map: wheelColor,  // Color texture for the wheel
+                            });
+                        }
+
+                        child.material.needsUpdate = true;  // Ensure the material updates
+                    }
+                });
+
                 object.scale.set(0.5, 0.5, 0.5);
                 object.position.set(0, 0, 0);
                 scene.add(object);
             }, undefined, function (error) {
                 console.error('Error loading roulette table:', error);
-            });
-
-            // Load Chips model
-            loader.load('./Chips.fbx', function (object) {
-                console.log('Chips model loaded:', object);
-                object.scale.set(0.5, 0.5, 0.5);
-                object.position.set(100, 0, 0);
-                scene.add(object);
-            }, undefined, function (error) {
-                console.error('Error loading chips:', error);
             });
 
             // Camera controls
