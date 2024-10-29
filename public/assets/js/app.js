@@ -1,4 +1,4 @@
-let bankValue = 1000;
+let bankValue = parseInt(localStorage.getItem('rouletteBankValue')) || 1000;
 let currentBet = 0;
 let wager = 5;
 let lastWager = 0;
@@ -18,8 +18,13 @@ startGame();
 let wheel = document.getElementsByClassName('wheel')[0];
 let ballTrack = document.getElementsByClassName('ballTrack')[0];
 
+function saveBankValue() {
+    localStorage.setItem('rouletteBankValue', bankValue.toString());
+}
+
 function resetGame(){
 	bankValue = 1000;
+	saveBankValue();
 	currentBet = 0;
 	wager = 5;
 	bet = [];
@@ -454,6 +459,7 @@ function setBet(e, n, t, o){
 			container.append(spinBtn);
 		}
 		bankValue = bankValue - wager;
+		saveBankValue();
 		currentBet = currentBet + wager;
 		document.getElementById('bankSpan').innerText = '' + bankValue.toLocaleString("en-GB") + '';
 		document.getElementById('betSpan').innerText = '' + currentBet.toLocaleString("en-GB") + '';
@@ -507,6 +513,7 @@ function spin(){
 				var numArray = bet[i].numbers.split(',').map(Number);
 				if(numArray.includes(winningSpin)){
 					bankValue = (bankValue + (bet[i].odds * bet[i].amt) + bet[i].amt);
+					saveBankValue();
 					winValue = winValue + (bet[i].odds * bet[i].amt);
 					betTotal = betTotal + bet[i].amt;
 				}
@@ -586,6 +593,7 @@ function removeBet(e, n, t, o){
 				wager = (bet[i].amt > wager)? wager : bet[i].amt;
 				bet[i].amt = bet[i].amt - wager;
 				bankValue = bankValue + wager;
+				saveBankValue();
 				currentBet = currentBet - wager;
 				document.getElementById('bankSpan').innerText = '' + bankValue.toLocaleString("en-GB") + '';
 				document.getElementById('betSpan').innerText = '' + currentBet.toLocaleString("en-GB") + '';
